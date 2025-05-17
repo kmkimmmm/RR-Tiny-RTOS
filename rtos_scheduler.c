@@ -1,56 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
-#include "rtos.h"
+#include <signal.h>
+#include <time.h>
+#include <unistd.h>
+#include <sys/timerfd.h>
+#include "rtos.h" // 공통 자료형 및 상수 포함
 
-// task 정보를 저장하는 배열
-Task tasks[MAX_TASKS];
-int task_count = 0;
+static int timer_fd;
+static Task tasks[MAX_TASKS];
+static int task_count = 0;
 
-// system 시작 후 발생한 1ms tick의 총 수를 저장
-volatile uint32_t ticks = 0;
-
-// task 선점 요청 flag
-volatile bool yield_flag = false;
-
-static HANDLE timer_handle;
-static volatile int current_task_index = 0;
-
-// 스케줄러 초기화 함수
 int init_scheduler(void)
 {
-    LARGE_INTEGER due_time;
+    struct sigevent sev;
+    struct itimerspec its;
 
-    // Waitable Timer 생성
-    timer_handle = CreateWaitableTimer(NULL, FALSE, NULL);
-    if (timer_handle == NULL)
+    // 타이머 생성 (timerfd 사용)
+    timer_fd = timerfd_create(CLOCK_MONOTONIC_RAW, 0);
+    if (timer_fd == -1)
     {
-        perror("CreateWaitableTimer");
+        perror("timerfd_create");
         return -1;
     }
 
-    // 타이머 간격 설정 1ms
-    due_time.QuadPart = -10000LL;
-    if (!SetWaitableTimer(timer_handle, &due_time, 1, NULL, NULL, FALSE))
+    // 타이머 간격 설정 (1ms)
+    its.it_value.tv_sec = 0;
+    its.it_value.tv_nsec = 1000000; // 1 ms
+    its.it_interval.tv_sec = 0;
+    its.it_interval.tv_nsec = 1000000; // 1 ms
+
+    if (timerfd_settime(timer_fd, 0, &its, NULL) == -1)
     {
-        perror("SetWaitableTimer");
-        CloseHandle(timer_handle);
+        perror("timerfd_settime");
+        close(timer_fd);
         return -1;
     }
 
-    printf("Scheduler initialized with 1ms tick.\n");
+    printf("Scheduler initialized with 1ms tick (using timerfd).\n");
     return 0;
 }
 
-// 새로운 task 등록
-void register_task(int period, void (*f)(void))
+void register_task(int period_ms, void (*func)(void))
 {
     if (task_count < MAX_TASKS)
     {
-        tasks[task_count].period_ms = period;
-        tasks[task_count].func = f;
+        tasks[task_count].period_ms = period_ms;
+        tasks[task_count].func = func;
         task_count++;
-        printf("Task registered at index %d, period: %d ms\n", task_count - 1, period);
+        printf("Task registered at index %d, period: %d ms\n", task_count - 1, period_ms);
     }
     else
     {
@@ -69,11 +66,12 @@ void rtos_start(void)
     printf("RTOS started. Running tasks...\n");
 
     int idx = 0;
+    uint64_t expirations;
 
     while (1)
     {
-        // Wait for the next timer tick (1ms)
-        if (WaitForSingleObject(timer_handle, INFINITE) == WAIT_OBJECT_0)
+        // Wait for the next timer tick
+        if (read(timer_fd, &expirations, sizeof(expirations)) > 0)
         {
             ticks++; // Increment global tick counter
 
@@ -99,12 +97,12 @@ void rtos_start(void)
         }
         else
         {
-            perror("WaitForSingleObject");
+            perror("read(timer_fd)");
             break; // Exit loop on error
         }
-        Sleep(0); // Give other threads a chance to run (optional)
+        usleep(10); // Small delay to reduce busy-waiting (optional, but can be helpful)
     }
 
-    CloseHandle(timer_handle);
+    close(timer_fd);
     printf("RTOS stopped.\n");
 }
