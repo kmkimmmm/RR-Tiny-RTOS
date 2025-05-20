@@ -1,4 +1,4 @@
-device\_io.c
+//device\_io.c
 
 // device_io.c
 #include "device_io.h"
@@ -9,8 +9,8 @@ device\_io.c
 #include <string.h>
 #include <stdarg.h>
 
-    /* 전역 파일 디스크립터 */
-    int fd_led;
+/* 전역 파일 디스크립터 */
+int fd_led;
 int fd_fnd;
 int fd_dot;
 int fd_lcd;
