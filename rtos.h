@@ -1,29 +1,27 @@
-//rtos.h
-
+// rtos.h
 #ifndef RTOS_H
 #define RTOS_H
 
 #include <stdint.h>
 
-/* 스케줄러 설정 */
-#define MAX_TASKS        16    /* 최대 태스크 수 */
-#define DEFAULT_SLICE_MS 1     /* 기본 타임 슬라이스 (ms) */
+// 최대 task 수 설정
+#define MAX_TASKS 16
 
-/* 태스크 정보 구조체 */
-typedef struct {
-    int            period_ms;  /* 실행 주기 (ms) */
-    void (*func)(void);        /* 태스크 함수 포인터 */
+// task의 정보를 담는 구조체
+typedef struct
+{
+    int period_ms;      // 실행 주기
+    void (*func)(void); // task가 실행할 함수
 } Task;
 
-/* 스케줄러 전역 변수 (rtos_scheduler.c에 정의) */
-extern Task           tasks[MAX_TASKS];
-extern int            task_count;
-extern volatile uint64_t ticks;
-extern volatile int      yield_flag;
-extern int            slice_ms;
+// 전역 변수 (rtos_scheduler.c에서 정의)
+extern Task tasks[MAX_TASKS];   // Task 구조체를 담는 배열
+extern int task_count;          // 배열에 저장된 task의 수
+extern volatile uint64_t ticks; // 1ms가 몇 번 지났는가? = tick
+extern volatile int yield_flag; // 선점 요청 정보를 담는 변수
 
-/* 스케줄러 API */
+// 스케쥴러에서 사용할 함수
 void register_task(int period_ms, void (*f)(void));
 void rtos_start(void);
 
-#endif /* RTOS_H */
+#endif 
