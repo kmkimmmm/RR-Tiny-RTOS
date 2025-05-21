@@ -16,7 +16,6 @@ void config_task(void)
     if (new_slice != slice_ms)
     {
         slice_ms = new_slice;
-        update_timeslice(slice_ms);
     }
 
     // 모터 PWM 설정(기존 로직)
