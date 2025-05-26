@@ -10,8 +10,6 @@
 #include "isr_push.h" // push_monitor 함수 원형 선언
 
 int main() {
-    // (선택) 드라이버 모듈/노드 초기화
-    // init_drivers();
 
     // 1. 디바이스 초기화
     device_init();
@@ -21,7 +19,7 @@ int main() {
     register_task(500,  task_fnd);
     register_task(200,  task_dot);
     register_task(1000, task_lcd);
-    register_task(20,   task_motor);
+    register_task(100,  task_buzzer);
     register_task(100,  config_task);
 
     // 3. Push ISR 스레드 생성

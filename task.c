@@ -82,7 +82,7 @@ void task_lcd(void) {
  */
 void task_buzzer(void) {
     if (buzzer_flag) {
-        buzzer_beep(50);
+        buzzer_on(50);
         buzzer_flag = 0;
     }
 }
