@@ -8,33 +8,35 @@
 #include <stdio.h>
 #include <stdint.h>
 
-extern int fd_push; // device_io.c에서 open됨
-extern volatile int yield_flag;
-extern volatile int buzzer_flag; // task_buzzer와 연동
+extern int fd_push; // device_io.c (재훈) 에서 정의한 push 관련 파일 디스크립터
+extern volatile int yield_flag; // 스케쥴러 선점 요청 플래그 (규민이에게 전달)
+extern volatile int buzzer_flag; // 버저 요청 플래그 (성빈이에게 전달)
 
-static uint8_t led_state = 0; // LED 토글 상태 관리
+static uint8_t led_state = 0; // LED 토글 상태를 관리하기 위한 변수
 
+// LED 상태를 반전시키는 함수
 void led_toggle(void) {
     led_state = ~led_state;
     led_write(led_state);
 }
 
+// Push Swtich를 모니터링하는 스레드 선언
 void* push_monitor(void* arg) {
     struct pollfd pfd;
     pfd.fd = fd_push;
     pfd.events = POLLIN;
 
     while (1) {
-        int ret = poll(&pfd, 1, -1); // 무한 대기
+        int ret = poll(&pfd, 1, -1); // poll()을 사용해서 Push Switch 입력을 비동기적으로 감지
         if (ret > 0 && (pfd.revents & POLLIN)) {
             int btn = push_read();
-            if (btn) { // 버튼 눌림 감지
-                led_toggle();
-                lcd_write("INT!");
-                buzzer_flag = 1; // task_buzzer에서 처리
-                yield_flag = 1;  // 스케줄러 선점 요청
+            if (btn) { // 버튼 눌림이 감지된다면 눌림 감지
+                led_toggle(); // LED 상태를 반전시키고
+                lcd_write("INT!"); // LCD에 "INT!"를 표시하고
+                buzzer_flag = 1; // 버저 요청 플래그를 설정해서 성빈이 task에 전달
+                yield_flag = 1;  // 스케쥴러 선점 요청 플래그를 설정해서 규민이 scheduler에 전달
             }
-            // 잔여 입력 버퍼 비우기(필요시)
+            
             usleep(10000); // 디바운스 (10ms)
         }
     }
