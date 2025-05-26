@@ -95,6 +95,7 @@ void rtos_start(void)
             break;
         }
 
+        // ticks = 몇 번 만료가 되었는가? = 1ms(단위시간)이 몇 번 흘렀는가?
         ticks += expirations;
 
         // 현재 CPU 점유 시간(quantum) 계산
@@ -106,28 +107,30 @@ void rtos_start(void)
                            : quantum_ms;
 
         // alloc_ms 만큼 실행하되, yield_flag가 세트되면 즉시 중단
-        printf("Running task %d up to %d ms (ticks=%llu)\n",
+        printf("Starting task %d for up to %d ms (ticks=%llu)\n",
                idx, alloc_ms, (unsigned long long)ticks);
 
-        int executed_ms = 0;
-        for (; executed_ms < alloc_ms; ++executed_ms)
+        // 태스크 함수 호출
+        tasks[idx].func();
+
+        // 할당 된 시간이 아직 지나지 않았고,
+        // yiled_flag의 값아 false라면 계속 유지.
+        int slept = 0;
+        while (slept < alloc_ms && !yield_flag)
         {
-            tasks[idx].func();
             usleep(1000); // 1 ms 지연
             ticks++;
+            slept++;
+        }
 
-            // 선점 요청이 들어오면 즉시 중단
-            if (yield_flag)
-            {
-                printf(" → Task %d preempted after %d ms\n", idx, executed_ms + 1);
-                yield_flag = 0; // 플래그 클리어
-                executed_ms++;  // 방금 실행된 1 ms 포함
-                break;
-            }
+        if (yield_flag)
+        {
+            printf(" → Task %d preempted after %d ms\n", idx, slept);
+            yield_flag = 0; // 플래그 클리어
         }
 
         // 남은 실행 시간 갱신
-        remaining_time[idx] -= executed_ms;
+        remaining_time[idx] -= slept;
         if (remaining_time[idx] == 0)
         {
             // 태스크가 완전히 끝났으면 다음 사이클을 위해 초기화
