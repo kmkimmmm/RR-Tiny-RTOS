@@ -21,52 +21,6 @@
 extern volatile uint32_t ticks;    // 시스템 틱 (rtos_scheduler.c)
 extern volatile int buzzer_flag;   // ISR에서 설정되는 버저 플래그
 
-/**
- * init_drivers()
- * - 동작: 셸 명령(system) 호출로 각 FPGA 드라이버 모듈 insmod 및 mknod 실행
- * - 위치: main() 시작 직후 호출
- */
-void init_drivers(void) {
-    // LED Driver
-    system("cd ~/fpga_example/fpga_led && make clean && make");
-    system("sudo insmod fpga_led_driver.ko");
-    system("sudo mknod /dev/fpga_led c 260 0");
-
-    // FND Driver
-    system("cd ~/fpga_example/fpga_fnd && make clean && make");
-    system("sudo insmod fpga_fnd_driver.ko");
-    system("sudo mknod /dev/fpga_fnd c 261 0");
-
-    // DOT Matrix Driver
-    system("cd ~/fpga_example/fpga_dot && make clean && make");
-    system("sudo insmod fpga_dot_driver.ko");
-    system("sudo mknod /dev/fpga_dot c 262 0");
-
-    // Text LCD Driver
-    system("cd ~/fpga_example/fpga_text_lcd && make clean && make");
-    system("sudo insmod fpga_text_lcd_driver.ko");
-    system("sudo mknod /dev/fpga_text_lcd c 263 0");
-
-    // Buzzer Driver
-    system("cd ~/fpga_example/fpga_buzzer && make clean && make");
-    system("sudo insmod fpga_buzzer_driver.ko");
-    system("sudo mknod /dev/fpga_buzzer c 264 0");
-
-    // Push Switch Driver
-    system("cd ~/fpga_example/fpga_push_switch && make clean && make");
-    system("sudo insmod fpga_push_switch_driver.ko");
-    system("sudo mknod /dev/fpga_push_switch c 265 0");
-
-    // DIP Switch Driver
-    system("cd ~/fpga_example/fpga_dip_switch && make clean && make");
-    system("sudo insmod fpga_dip_switch_driver.ko");
-    system("sudo mknod /dev/fpga_dip_switch c 266 0");
-
-    // Step Motor Driver
-    system("cd ~/fpga_example/fpga_step_motor && make clean && make");
-    system("sudo insmod fpga_step_motor_driver.ko");
-    system("sudo mknod /dev/fpga_step_motor c 267 0");
-}
 
 /**
  * task_led()
@@ -143,9 +97,10 @@ void task_buzzer(void) {
  * - 주기: 20 ms
  * - 장치: Step Motor (/dev/fpga_step_motor)
  * - 동작: config_task에서 설정된 PWM 유지
+ * -> 이건 어차피 config.c에서 관리하므로 필요가 없음
  */
-void task_motor(void) {
-    // set_motor_pwm()은 config_task에서 주기적 호출됨
-}
+// void task_motor(void) {
+//     // set_motor_pwm()은 config_task에서 주기적 호출됨
+// }
 
 #endif // TASKS_C
