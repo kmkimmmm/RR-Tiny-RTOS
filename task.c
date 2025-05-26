@@ -1,8 +1,3 @@
-// task
-
-#ifndef TASKS_C
-#define TASKS_C
-
 /*
  * tasks.c
  * 역할: FPGA 8개 장치 제어 태스크 구현 및 드라이버 자동 초기화
@@ -102,5 +97,3 @@ void task_buzzer(void) {
 // void task_motor(void) {
 //     // set_motor_pwm()은 config_task에서 주기적 호출됨
 // }
-
-#endif // TASKS_C
