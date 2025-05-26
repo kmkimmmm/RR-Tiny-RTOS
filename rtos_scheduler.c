@@ -74,7 +74,7 @@ void rtos_start(void)
     printf("RTOS started. Running tasks...\n");
 
     int idx = 0; // 실행할 task의 index를 가리키는 변수
-    unit64_t start_ticks = ticks;
+    uint64_t start_ticks = ticks;
 
     while (1)
     {
