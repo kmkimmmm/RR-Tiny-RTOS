@@ -8,6 +8,7 @@ int slice_ms = DEFAULT_SLICE_MS; // RTOS의 타임 슬라이스 설정 (기본�
 uint8_t motor_pwm = 0;           // 모터 PWM 값 (0-100 범위)
 
 // 시스템 설정을 관리하는 태스크 (scheduler의 time slice 설정 및 모터 PWM 설정)
+// 100ms 주기로 실행되며, DIP 스위치의 상태를 읽어 시스템 설정을 동적으로 변경
 void config_task(void)
 {
     uint8_t v = dip_read();  // DIP 스위치의 현재 상태를 읽어옴

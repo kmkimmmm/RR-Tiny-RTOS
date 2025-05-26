@@ -1,6 +1,5 @@
-//device\_io.c
-
 // device_io.c
+
 #include "device_io.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,16 +8,22 @@
 #include <string.h>
 #include <stdarg.h>
 
-/* 전역 파일 디스크립터 */
-int fd_led;
-int fd_fnd;
-int fd_dot;
-int fd_lcd;
-int fd_buz;
-int fd_push;
-int fd_dip;
-int fd_motor;
+/* 전역 파일 디스크립터 - 각 장치 파일의 핸들을 저장 */
+int fd_led;    // LED 제어용
+int fd_fnd;    // 7-세그먼트 FND 제어용
+int fd_dot;    // 도트 매트릭스 제어용
+int fd_lcd;    // LCD 제어용
+int fd_buz;    // 버저 제어용
+int fd_push;   // 푸시 스위치 읽기용
+int fd_dip;    // DIP 스위치 읽기용
+int fd_motor;  // 모터 제어용
 
+/**
+ * 장치 파일을 열고 에러 체크하는 헬퍼 함수
+ * path: 열고자 하는 장치 파일 경로 (/dev/fpga_*)
+ * flags: open() 플래그 (O_RDONLY: 읽기 전용, O_WRONLY: 쓰기 전용)
+ * return: 성공 시 파일 디스크립터, 실패 시 에러 메시지 출력 후 프로그램 종료
+ */
 static int open_device(const char *path, int flags)
 {
     int fd = open(path, flags);
@@ -34,7 +39,9 @@ static int open_device(const char *path, int flags)
 
 /**
  * device_init()
- * 모든 FPGA 디바이스 파일을 open()하고, 각 호출 직후 에러 체크
+ * 모든 FPGA 장치 파일을 열고 초기화
+ * 쓰기 전용 장치: LED, FND, DOT, LCD, 버저, 모터
+ * 읽기 전용 장치: 푸시 스위치, DIP 스위치
  */
 void device_init(void)
 {
@@ -49,7 +56,8 @@ void device_init(void)
 }
 
 /**
- * LED 출력 (1 byte)
+ * LED 출력 함수
+ * v: 8비트 (1byte) LED 패턴 (0: 꺼짐, 1: 켜짐)
  */
 void led_write(uint8_t v)
 {
@@ -57,7 +65,8 @@ void led_write(uint8_t v)
 }
 
 /**
- * 7-세그먼트 FND 출력 (2 bytes)
+ * 7-세그먼트 FND 출력 함수
+ * n: 표시할 16비트 숫자 (2byte)
  */
 void fnd_write(uint16_t n)
 {
@@ -65,7 +74,8 @@ void fnd_write(uint16_t n)
 }
 
 /**
- * Dot 매트릭스 출력 (8 bytes)
+ * 도트 매트릭스 출력 함수
+ * pattern: 8x8 도트 매트릭스 패턴 (8바이트)
  */
 void dot_write(uint8_t pattern[8])
 {
@@ -73,7 +83,8 @@ void dot_write(uint8_t pattern[8])
 }
 
 /**
- * LCD 문자열 출력
+ * LCD 문자열 출력 함수
+ * str: 출력할 문자열
  */
 void lcd_write(const char *str)
 {
@@ -81,7 +92,9 @@ void lcd_write(const char *str)
 }
 
 /**
- * LCD 포맷 출력
+ * LCD 포맷 출력 함수 (printf 스타일)
+ * fmt: 포맷 문자열
+ * ...: 가변 인자
  */
 void lcd_write_fmt(const char *fmt, ...)
 {
@@ -94,7 +107,8 @@ void lcd_write_fmt(const char *fmt, ...)
 }
 
 /**
- * 버저 켜기: duration_ms 만큼 비프
+ * 버저 켜기 함수
+ * duration_ms: 비프음 지속 시간 (밀리초)
  */
 void buzzer_on(uint32_t duration_ms)
 {
@@ -102,7 +116,7 @@ void buzzer_on(uint32_t duration_ms)
 }
 
 /**
- * 버저 끄기
+ * 버저 끄기 함수
  */
 void buzzer_off(void)
 {
@@ -111,7 +125,8 @@ void buzzer_off(void)
 }
 
 /**
- * 푸시 스위치 읽기 (1 byte)
+ * 푸시 스위치 상태 읽기 함수
+ * return: 스위치 상태 (0: 안눌림, 1: 눌림)
  */
 int push_read(void)
 {
@@ -121,7 +136,8 @@ int push_read(void)
 }
 
 /**
- * 딥 스위치 읽기 (1 byte)
+ * DIP 스위치 상태 읽기 함수
+ * return: DIP 스위치 8비트 값
  */
 uint8_t dip_read(void)
 {
@@ -131,7 +147,8 @@ uint8_t dip_read(void)
 }
 
 /**
- * 모터 PWM 듀티 설정 (1 byte, 0–100)
+ * 모터 PWM 듀티 설정 함수
+ * duty: PWM 듀티비 (0-100)
  */
 void motor_set_pwm(uint8_t duty)
 {
@@ -139,7 +156,7 @@ void motor_set_pwm(uint8_t duty)
 }
 
 /**
- * 모터 정지
+ * 모터 정지 함수
  */
 void motor_stop(void)
 {
