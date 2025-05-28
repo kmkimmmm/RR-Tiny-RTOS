@@ -7,6 +7,7 @@
 #include "rtos.h"
 #include <stdio.h>
 #include <stdint.h>
+#include "task.h"
 
 extern int fd_push; // device_io.c (재훈) 에서 정의한 push 관련 파일 디스크립터
 volatile int yield_flag = 0;  // 스케쥴러 선점 요청 플래그 (규민이에게 전달)

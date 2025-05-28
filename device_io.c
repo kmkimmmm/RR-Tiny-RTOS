@@ -94,7 +94,7 @@ void lcd_write(const char *str)
 
 /**
  * LCD 포맷 출력 함수 (printf 스타일)
- * fmt: 포맷 문자열
+ * fmt: 포맷 문자열mot
  * ...: 가변 인자
  */
 void lcd_write_fmt(const char *fmt, ...)
@@ -111,19 +111,22 @@ void lcd_write_fmt(const char *fmt, ...)
  * 버저 켜기 함수
  * duration_ms: 비프음 지속 시간 (밀리초)
  */
-void buzzer_on(uint32_t duration_ms)
+void buzzer_on(void)
 {
-    write(fd_buz, &duration_ms, sizeof(duration_ms));
+    int data = 1;
+    write(fd_buz, &data, 1);
 }
+
 
 /**
  * 버저 끄기 함수
  */
 void buzzer_off(void)
 {
-    uint32_t zero = 0;
-    write(fd_buz, &zero, sizeof(zero));
+    int data = 0;
+    write(fd_buz, &data, 1);
 }
+
 
 /**
  * 푸시 스위치 상태 읽기 함수
@@ -167,6 +170,11 @@ void motor_set_pwm(uint8_t duty)
  */
 void motor_stop(void)
 {
-    uint8_t zero = 0;
-    write(fd_motor, &zero, 1);
+    uint8_t motor_state[3];
+
+    motor_state[0]=0;
+    motor_state[1]=0;
+    motor_state[2]=0;
+
+    write(fd_motor, motor_state, 3);
 }
