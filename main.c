@@ -9,18 +9,19 @@
 #include "config.h"
 #include "isr_push.h" // push_monitor 함수 원형 선언
 
-int main() {
+int main()
+{
 
     // 1. 디바이스 초기화
     device_init();
 
     // 2. 태스크 등록
     register_task(1000, task_led);
-    register_task(500,  task_fnd);
-    register_task(200,  task_dot);
+    register_task(500, task_fnd);
+    register_task(200, task_dot);
     register_task(1000, task_lcd);
-    register_task(100,  task_buzzer);
-    register_task(100,  config_task);
+    register_task(100, task_buzzer);
+    register_task(100, config_task);
 
     // 3. Push ISR 스레드 생성
     pthread_t push_thread;
