@@ -22,6 +22,7 @@ extern volatile int yield_flag; // 선점 요청 정보를 담는 변수
 extern DEFAULT_CPU_QUANTA_MS;
 
 // 스케쥴러에서 사용할 함수
+int init_scheduler(void);
 void register_task(int period_ms, void (*f)(void));
 void rtos_start(void);
 void update_timeslice(int new_slice_ms);

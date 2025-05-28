@@ -26,7 +26,7 @@ int init_scheduler(void)
     타이머 디스크립터가 잘 생성되었다면 non-negative value를 return
     즉, 음수의 값을 return 하면 에러 메시지 출력하도록 설정
     */
-    if ((timer_fd = timerfd_create(CLOCK_MONOTONIC_RAW, 0)) < 0)
+    if ((timer_fd = timerfd_create(CLOCK_MONOTONIC, 0)) < 0)
     {
         perror("timerfd_create");
         return -1;
@@ -103,6 +103,7 @@ void rtos_start(void)
             perror("read(timer_fd)");
             break;
         }
+        printf("Timer expired, expirations: %llu, current ticks: %llu\n", (unsigned long long)expirations, (unsigned long long)ticks);
 
         // ticks = 몇 번 만료가 되었는가? = 1ms(단위시간)이 몇 번 흘렀는가?
         ticks += expirations;
