@@ -21,6 +21,6 @@ void config_task(void)
     }
 
     // 상위 6비트로 모터 PWM 값을 설정 (0-63 범위를 0-100 범위로 변환)
-    uint8_t motor_pwm = ((v >> 2) & 0x3F) * 100 / 63;
+    motor_pwm = ((v >> 2) & 0x3F) * 100 / 63;
     motor_set_pwm(motor_pwm);  // 계산된 PWM 값을 모터에 적용
 }
