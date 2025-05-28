@@ -30,7 +30,6 @@ int main() {
     
     // === 백그라운드 태스크 (무한 실행, 종료 조건에서 제외) ===
     register_task(-1,    task_config); // 무한 - DIP 스위치 설정 읽기
-    // register_task(-1,    task_buzzer); // 무한 - 버저 인터럽트 처리
 
     // 3. Push ISR 스레드 생성
     pthread_t push_thread;
