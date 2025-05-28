@@ -68,18 +68,19 @@ void led_write(uint8_t v)
  * 7-세그먼트 FND 출력 함수
  * n: 표시할 16비트 숫자 (2byte)
  */
-void fnd_write(uint16_t n)
+void fnd_write(const char digits[4])
 {
-    write(fd_fnd, &n, 2);
+    // digits 배열의 내용을 그대로 전송
+    write(fd_fnd, digits, 4);
 }
 
 /**
  * 도트 매트릭스 출력 함수
- * pattern: 8x8 도트 매트릭스 패턴 (8바이트)
+ * pattern: 8x10 도트 매트릭스 패턴 (10바이트)
  */
-void dot_write(const uint8_t pattern[8])
+void dot_write(const uint8_t pattern[10])
 {
-    write(fd_dot, pattern, 8);
+    write(fd_dot, pattern, 10);
 }
 
 /**
@@ -141,7 +142,7 @@ int push_read(void)
  */
 uint8_t dip_read(void)
 {
-    uint8_t v;
+    uint8_t v = 0;
     read(fd_dip, &v, 1);
     return v;
 }
@@ -152,7 +153,13 @@ uint8_t dip_read(void)
  */
 void motor_set_pwm(uint8_t duty)
 {
-    write(fd_motor, &duty, 1);
+    uint8_t motor_state[3];
+
+    motor_state[0]=1;
+    motor_state[1]=1;
+    motor_state[2]=duty;
+
+    write(fd_motor, motor_state, sizeof(motor_state));
 }
 
 /**
