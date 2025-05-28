@@ -62,8 +62,17 @@ void register_task(int period_ms, void (*func)(void))
     */
     tasks[task_count].period_ms = period_ms;
     tasks[task_count].func = func;
-    remaining_time[task_count] = period_ms; // ← 남은 실행 시간 초기화
-    printf("Task %d registered (period_ms=%d)\n", task_count, period_ms);
+    
+    if (period_ms == -1) {
+        // 백그라운드 태스크 (무한 실행)
+        remaining_time[task_count] = -1;
+        printf("Background task %d registered (infinite)\n", task_count);
+    } else {
+        // 일반 태스크 (정해진 실행 시간)
+        remaining_time[task_count] = period_ms;
+        printf("Normal task %d registered (period_ms=%d)\n", task_count, period_ms);
+    }
+    
     task_count++;
 }
 
@@ -80,7 +89,6 @@ void rtos_start(void)
     printf("RTOS started. Round-Robin scheduling with slice_ms = %d\n", slice_ms);
 
     int idx = 0; // 실행할 task의 index를 가리키는 변수
-
 
     while (1)
     {
@@ -99,17 +107,50 @@ void rtos_start(void)
         // ticks = 몇 번 만료가 되었는가? = 1ms(단위시간)이 몇 번 흘렀는가?
         ticks += expirations;
 
+        // 일반 태스크가 모두 완료되었는지 확인
+        int normal_tasks_completed = 1;
+        for (int i = 0; i < task_count; i++) {
+            if (tasks[i].period_ms != -1 && remaining_time[i] > 0) {
+                normal_tasks_completed = 0;
+                break;
+            }
+        }
+        
+        if (normal_tasks_completed) {
+            printf("All normal tasks completed. Exiting RTOS.\n");
+            break;
+        }
+
+        // remaining_time이 0이면 태스크를 건너뛰기 (백그라운드 태스크는 제외)
+        if (remaining_time[idx] == 0 && tasks[idx].period_ms != -1)
+        {
+            printf("Task %d skipped (remaining_time=0)\n", idx);
+            // 다음 태스크로 전환 (round-robin)
+            idx = (idx + 1) % task_count;
+            continue;
+        }
+
+        // 백그라운드 태스크는 항상 실행
+        int is_background = (tasks[idx].period_ms == -1);
+        
         // 현재 CPU 점유 시간(quantum) 계산
         int quantum_ms = DEFAULT_CPU_QUANTA_MS * slice_ms;
 
-        // 이 태스크가 실제로 실행할 최대 시간 = min(남은 실행 시간, 할당된 quantum)
-        int alloc_ms = remaining_time[idx] < quantum_ms
+        // 이 태스크가 실제로 실행할 최대 시간
+        int alloc_ms;
+        if (is_background) {
+            // 백그라운드 태스크는 quantum 시간만큼 실행
+            alloc_ms = quantum_ms;
+        } else {
+            // 일반 태스크는 min(남은 실행 시간, 할당된 quantum)
+            alloc_ms = remaining_time[idx] < quantum_ms
                            ? remaining_time[idx]
                            : quantum_ms;
+        }
 
         // alloc_ms 만큼 실행하되, yield_flag가 세트되면 즉시 중단
-        printf("Starting task %d for up to %d ms (ticks=%llu)\n",
-               idx, alloc_ms, (unsigned long long)ticks);
+        printf("Starting task %d (%s) for up to %d ms (ticks=%llu)\n",
+               idx, is_background ? "background" : "normal", alloc_ms, (unsigned long long)ticks);
 
         // 태스크 함수 호출
         tasks[idx].func();
@@ -130,12 +171,13 @@ void rtos_start(void)
             yield_flag = 0; // 플래그 클리어
         }
 
-        // 남은 실행 시간 갱신
-        remaining_time[idx] -= slept;
-        if (remaining_time[idx] == 0)
-        {
-            // 태스크가 완전히 끝났으면 다음 사이클을 위해 초기화
-            remaining_time[idx] = tasks[idx].period_ms;
+        // 남은 실행 시간 갱신 (백그라운드 태스크는 제외)
+        if (!is_background) {
+            remaining_time[idx] -= slept;
+            if (remaining_time[idx] == 0)
+            {
+                printf(" → Task %d completed!\n", idx);
+            }
         }
 
         // 다음 태스크로 전환 (round-robin)

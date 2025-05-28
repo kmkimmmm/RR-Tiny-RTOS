@@ -89,11 +89,25 @@ void task_buzzer(void) {
 
 /**
  * task_motor()
- * - 주기: 20 ms
+ * - 주기: 5초
  * - 장치: Step Motor (/dev/fpga_step_motor)
- * - 동작: config_task에서 설정된 PWM 유지
- * -> 이건 어차피 config.c에서 관리하므로 필요가 없음
+ * - 동작: DIP 스위치 값에 따라 2단계 속도 제어
  */
+void task_motor(void) {
+    uint8_t v = dip_read();  // DIP 스위치 값 읽기
+    uint8_t motor_speed;
+    
+    // DIP 스위치 하위 2비트에 따라 모터 속도 결정
+    if ((v & 0x03) == 0) {
+        motor_speed = 30;  // 느린 속도 (30% PWM)
+    } else {
+        motor_speed = 80;  // 빠른 속도 (80% PWM)
+    }
+    
+    motor_set_pwm(motor_speed);
+    printf("Motor speed set to %d%% (DIP: 0x%02X)\n", motor_speed, v);
+}
+
 // void task_motor(void) {
 //     // set_motor_pwm()은 config_task에서 주기적 호출됨
 // }

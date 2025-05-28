@@ -5,22 +5,22 @@
 #include <stdint.h>
 
 int slice_ms = DEFAULT_SLICE_MS; // RTOS의 타임 슬라이스 설정 (기본값은 rtos.h에 정의)
-uint8_t motor_pwm = 0;           // 모터 PWM 값 (0-100 범위)
 
-// 시스템 설정을 관리하는 태스크 (scheduler의 time slice 설정 및 모터 PWM 설정)
-// 100ms 주기로 실행되며, DIP 스위치의 상태를 읽어 시스템 설정을 동적으로 변경
-void config_task(void)
-{
-    uint8_t v = dip_read();  // DIP 스위치의 현재 상태를 읽어옴
-    int new_slice = ((v & 0x03) == 0) ? 1 : 5;  // 하위 2비트로 타임 슬라이스 설정 (0: 1ms, 1-3: 5ms)
-
-    // 타임 슬라이스가 변경된 경우에만 업데이트
-    if (new_slice != slice_ms)
-    {
-        slice_ms = new_slice;
+/**
+ * task_config()
+ * - 주기: -1 (백그라운드 태스크)
+ * - 장치: DIP Switch (/dev/fpga_dip_switch)
+ * - 동작: DIP 스위치 값에 따라 타임슬라이스 설정
+ */
+void task_config(void) {
+    uint8_t v = dip_read();
+    
+    // 하위 2비트로 타임슬라이스 설정
+    if ((v & 0x03) == 0) {
+        slice_ms = 1;  // 빠른 멀티태스킹
+    } else {
+        slice_ms = 5;  // 긴 시간 단위 실행
     }
-
-    // 상위 6비트로 모터 PWM 값을 설정 (0-63 범위를 0-100 범위로 변환)
-    motor_pwm = ((v >> 2) & 0x3F) * 100 / 63;
-    motor_set_pwm(motor_pwm);  // 계산된 PWM 값을 모터에 적용
+    
+    printf("Config: slice_ms=%d (DIP: 0x%02X)\n", slice_ms, v);
 }
