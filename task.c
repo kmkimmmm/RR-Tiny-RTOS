@@ -8,7 +8,7 @@
  */
 
 #include "rtos.h"         // RTOS 공통 구조체, register_task, rtos_start
-#include "device_io.h"    // led_write, fnd_write, dot_write, lcd_write_fmt, buzzer_beep, set_motor_pwm
+#include "device_io.h"    // led_write, fnd_write, dot_write, lcd_write_fmt, buzzer_beep, motor_set_pwm
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -107,7 +107,3 @@ void task_motor(void) {
     motor_set_pwm(motor_speed);
     printf("Motor speed set to %d%% (DIP: 0x%02X)\n", motor_speed, v);
 }
-
-// void task_motor(void) {
-//     // set_motor_pwm()은 config_task에서 주기적 호출됨
-// }

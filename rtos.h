@@ -6,7 +6,6 @@
 
 // 최대 task 수 설정
 #define MAX_TASKS 16
-#define DEFAULT_SLICE_MS 1
 
 // task의 정보를 담는 구조체
 typedef struct
