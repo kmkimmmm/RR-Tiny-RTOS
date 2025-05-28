@@ -77,7 +77,7 @@ void fnd_write(uint16_t n)
  * 도트 매트릭스 출력 함수
  * pattern: 8x8 도트 매트릭스 패턴 (8바이트)
  */
-void dot_write(uint8_t pattern[8])
+void dot_write(const uint8_t pattern[8])
 {
     write(fd_dot, pattern, 8);
 }

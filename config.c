@@ -3,6 +3,8 @@
 #include "device_io.h"
 #include "rtos.h"
 #include <stdint.h>
+#include "config.h"
+#include <stdio.h>
 
 int slice_ms = DEFAULT_SLICE_MS; // RTOS의 타임 슬라이스 설정 (기본값은 rtos.h에 정의)
 

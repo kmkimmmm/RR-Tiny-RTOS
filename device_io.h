@@ -19,7 +19,7 @@ void device_init(void);
 /* 장치별 래퍼 함수 */
 void led_write(uint8_t v);
 void fnd_write(uint16_t n);
-void dot_write(uint8_t pattern[8]);
+void dot_write(const uint8_t pattern[8]);
 void lcd_write(const char *str);
 void lcd_write_fmt(const char *fmt, ...);
 void buzzer_on(uint32_t duration_ms);

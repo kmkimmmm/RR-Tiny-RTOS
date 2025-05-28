@@ -7,9 +7,9 @@
 #define DEFAULT_CPU_QUANTA_MS 1000 // CPU 점유 시간의 default 값
 
 static int timer_fd;                  // 타이머 파일 디스크립터
-static Task tasks[MAX_TASKS];         // Task 구조체를 담는 배열
-static int task_count = 0;            // 스케줄러에 등록된 태스크 수
-static uint64_t ticks = 0;            // 1ms가 몇 번 지났는가? = tick
+Task tasks[MAX_TASKS];         // Task 구조체를 담는 배열
+int task_count = 0;            // 스케줄러에 등록된 태스크 수
+volatile uint64_t ticks = 0;            // 1ms가 몇 번 지났는가? = tick
 static int remaining_time[MAX_TASKS]; // 각 태스크별 남은 실행 시간(ms)
 extern int slice_ms;                  // DIP switch의 값에 따라서 1 또는 5
 extern volatile int yield_flag;       // 선점 요청 플래그
