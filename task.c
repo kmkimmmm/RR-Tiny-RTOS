@@ -42,9 +42,22 @@ void task_led(void) {
  */
 void task_fnd(void) {
     static uint16_t counter = 0;
-    fnd_write(counter);
-    counter++;
+    char digits[4];
+
+    // 네 자리 숫자로 분리
+    digits[0] = (counter / 1000) % 10;  // 천의 자리
+    digits[1] = (counter /  100) % 10;  // 백의 자리
+    digits[2] = (counter /   10) % 10;  // 십의 자리
+    digits[3] = (counter        ) % 10;  // 일의 자리
+
+    // 분리된 네 자리 값을 한 번에 전송
+    // device_io.c 쪽에서 void fnd_write(const char digits[4])로 구현되어야 함
+    fnd_write(digits);
+
+    // counter를 0~9999 범위로 순환
+    counter = (counter + 1) % 10000;
 }
+
 
 // 10행×7열 하트 모양 프레임 (한 프레임 정의)
 static const uint8_t dot_patterns[1][10] = {

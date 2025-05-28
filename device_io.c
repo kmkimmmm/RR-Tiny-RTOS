@@ -68,9 +68,10 @@ void led_write(uint8_t v)
  * 7-세그먼트 FND 출력 함수
  * n: 표시할 16비트 숫자 (2byte)
  */
-void fnd_write(uint16_t n)
+void fnd_write(const char digits[4])
 {
-    write(fd_fnd, &n, 2);
+    // digits 배열의 내용을 그대로 전송
+    write(fd_fnd, digits, 4);
 }
 
 /**
@@ -141,7 +142,7 @@ int push_read(void)
  */
 uint8_t dip_read(void)
 {
-    uint8_t v;
+    uint8_t v = 0;
     read(fd_dip, &v, 1);
     return v;
 }
