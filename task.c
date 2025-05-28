@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern volatile uint32_t ticks;    // 시스템 틱 (rtos_scheduler.c)
+extern volatile uint64_t ticks;    // 시스템 틱 (rtos_scheduler.c)
 extern volatile int buzzer_flag;   // ISR에서 설정되는 버저 플래그
 
 
@@ -70,7 +70,7 @@ void task_dot(void) {
  */
 void task_lcd(void) {
     char buf[32];
-    snprintf(buf, sizeof(buf), "Tick:%u", ticks);
+    snprintf(buf, sizeof(buf), "Tick:%llu", ticks);
     lcd_write_fmt(buf);
 }
 
