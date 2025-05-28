@@ -122,7 +122,6 @@ void task_buzzer(void) {
         buzzer_on();
         buzzer_flag = 0;
     }
-    buzzer_off();
 }
 
 /**

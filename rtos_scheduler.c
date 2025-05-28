@@ -141,6 +141,15 @@ void rtos_start(void)
         // 백그라운드 태스크는 항상 실행
         int is_background = (tasks[idx].period_ms == -1);
 
+        // 푸시 버튼 상태 확인: 눌려있으면 일반 태스크 일시정지
+        int push_state = push_read();
+        if (!is_background && push_state != 0) {
+            printf("Task %d (normal) paused due to push button pressed\n", idx);
+            // 다음 태스크로 전환 (round-robin)
+            idx = (idx + 1) % task_count;
+            continue;
+        }
+
         // 현재 CPU 점유 시간(quantum) 계산
         int quantum_ms = DEFAULT_CPU_QUANTA_MS * slice_ms;
 
