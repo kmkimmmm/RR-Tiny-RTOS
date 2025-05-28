@@ -48,11 +48,11 @@ void device_init(void)
     fd_led = open_device("/dev/fpga_led", O_WRONLY);
     fd_fnd = open_device("/dev/fpga_fnd", O_WRONLY);
     fd_dot = open_device("/dev/fpga_dot", O_WRONLY);
-    fd_lcd = open_device("/dev/fpga_text", O_WRONLY);
+    fd_lcd = open_device("/dev/fpga_text_lcd", O_WRONLY);
     fd_buz = open_device("/dev/fpga_buzzer", O_WRONLY);
-    fd_push = open_device("/dev/fpga_push", O_RDONLY);
-    fd_dip = open_device("/dev/fpga_dip", O_RDONLY);
-    fd_motor = open_device("/dev/fpga_motor", O_WRONLY);
+    fd_push = open_device("/dev/fpga_push_switch", O_RDONLY);
+    fd_dip = open_device("/dev/fpga_dip_switch", O_RDONLY);
+    fd_motor = open_device("/dev/fpga_step_motor", O_WRONLY);
 }
 
 /**
