@@ -13,6 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define DOT_FRAMES 1
+#define DOT_ROWS   10
+
+
 extern volatile uint64_t ticks;    // 시스템 틱 (rtos_scheduler.c)
 extern volatile int buzzer_flag;   // ISR에서 설정되는 버저 플래그
 
@@ -42,13 +46,22 @@ void task_fnd(void) {
     counter++;
 }
 
-// 도트 매트릭스 애니메이션 프레임 배열 (3프레임 예시)
-static const uint8_t dot_patterns[][8] = {
-    {0x18,0x24,0x42,0x81,0x81,0x42,0x24,0x18},
-    {0x00,0x66,0xFF,0x7E,0x3C,0x18,0x18,0x00},
-    {0x00,0x18,0x3C,0x7E,0x7E,0x3C,0x18,0x00}
+// 10행×7열 하트 모양 프레임 (한 프레임 정의)
+static const uint8_t dot_patterns[1][10] = {
+    {
+        0b0110110,  // ▓██▓██▓
+        0b1111111,  // ███████
+        0b1111111,  // ███████
+        0b1111111,  // ███████
+        0b1111111,  // ███████
+        0b0111110,  // ▓█████▓
+        0b0011100,  // ▓▓███▓▓
+        0b0001000,  // ▓▓▓█▓▓▓
+        0b0000000,  // ▓▓▓▓▓▓▓
+        0b0000000   // ▓▓▓▓▓▓▓
+    }
 };
-#define DOT_FRAMES (sizeof(dot_patterns)/sizeof(dot_patterns[0]))
+
 
 /**
  * task_dot()
@@ -57,9 +70,19 @@ static const uint8_t dot_patterns[][8] = {
  * - 동작: dot_patterns 순환 출력
  */
 void task_dot(void) {
-    static size_t idx = 0;
-    dot_write(dot_patterns[idx]);
-    idx = (idx + 1) % DOT_FRAMES;
+    static size_t row_off = 0;
+    uint8_t buf[DOT_ROWS];
+
+    // row_off부터 시작해 10행을 모듈러 연산으로 읽어 버퍼에 채움
+    for (size_t i = 0; i < DOT_ROWS; i++) {
+        buf[i] = dot_patterns[0][(row_off + i) % DOT_ROWS];
+    }
+
+    // 매트릭스에 스크롤된 데이터를 전송
+    dot_write(buf);
+
+    // 다음 호출 때 한 줄 더 스크롤
+    row_off = (row_off + 1) % DOT_ROWS;
 }
 
 /**
@@ -105,5 +128,6 @@ void task_motor(void) {
     }
     
     motor_set_pwm(motor_speed);
+
     printf("Motor speed set to %d%% (DIP: 0x%02X)\n", motor_speed, v);
 }

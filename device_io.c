@@ -75,11 +75,11 @@ void fnd_write(uint16_t n)
 
 /**
  * 도트 매트릭스 출력 함수
- * pattern: 8x8 도트 매트릭스 패턴 (8바이트)
+ * pattern: 8x10 도트 매트릭스 패턴 (10바이트)
  */
-void dot_write(const uint8_t pattern[8])
+void dot_write(const uint8_t pattern[10])
 {
-    write(fd_dot, pattern, 8);
+    write(fd_dot, pattern, 10);
 }
 
 /**
@@ -152,7 +152,13 @@ uint8_t dip_read(void)
  */
 void motor_set_pwm(uint8_t duty)
 {
-    write(fd_motor, &duty, 1);
+    uint8_t motor_state[3];
+
+    motor_state[0]=1;
+    motor_state[1]=1;
+    motor_state[2]=duty;
+
+    write(fd_motor, motor_state, sizeof(motor_state));
 }
 
 /**

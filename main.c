@@ -22,15 +22,15 @@ int main() {
 
     // 2. 태스크 등록
     // === 일반 태스크 (정해진 실행 시간, 완료 후 종료) ===
-    register_task(8000,  task_led);    // 8초  - LED 패턴 변경
-    register_task(6000,  task_fnd);    // 6초  - FND 숫자 증가  
-    register_task(4000,  task_dot);    // 4초  - DOT 패턴 변경
-    register_task(10000, task_lcd);    // 10초 - LCD 틱 표시
-    register_task(5000,  task_motor);  // 5초  - 모터 제어 (새로 추가)
+    register_task(80000,  task_led);    // 80초  - LED 패턴 변경
+    register_task(60000,  task_fnd);    // 60초  - FND 숫자 증가  
+    register_task(40000,  task_dot);    // 40초  - DOT 패턴 변경
+    register_task(100000, task_lcd);    // 100초 - LCD 틱 표시
+    register_task(50000,  task_motor);  // 50초  - 모터 제어 (새로 추가)
     
     // === 백그라운드 태스크 (무한 실행, 종료 조건에서 제외) ===
     register_task(-1,    task_config); // 무한 - DIP 스위치 설정 읽기
-    register_task(-1,    task_buzzer); // 무한 - 버저 인터럽트 처리
+    // register_task(-1,    task_buzzer); // 무한 - 버저 인터럽트 처리
 
     // 3. Push ISR 스레드 생성
     pthread_t push_thread;

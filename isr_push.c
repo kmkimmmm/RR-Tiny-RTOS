@@ -34,6 +34,7 @@ void* push_monitor(void* arg) {
                 led_toggle(); // LED 상태를 반전시키고
                 lcd_write("INT!"); // LCD에 "INT!"를 표시하고
                 buzzer_flag = 1; // 버저 요청 플래그를 설정해서 성빈이 task에 전달
+                task_buzzer();   // 버저 요청 플래그를 설정해서 성빈이 task에 전달
                 yield_flag = 1;  // 스케쥴러 선점 요청 플래그를 설정해서 규민이 scheduler에 전달
             }
             
