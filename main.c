@@ -14,6 +14,12 @@ int main() {
     // 1. 디바이스 초기화
     device_init();
 
+    // 1.5 스케줄러(타이머) 초기화
+    if (init_scheduler() != 0) {
+        fprintf(stderr, "Failed to initialize scheduler\n");
+        return EXIT_FAILURE;
+    }
+
     // 2. 태스크 등록
     // === 일반 태스크 (정해진 실행 시간, 완료 후 종료) ===
     register_task(8000,  task_led);    // 8초  - LED 패턴 변경
