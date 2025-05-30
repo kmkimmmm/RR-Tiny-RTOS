@@ -18,7 +18,6 @@
 
 
 extern volatile uint64_t ticks;    // 시스템 틱 (rtos_scheduler.c)
-extern volatile int buzzer_flag;   // ISR에서 설정되는 버저 플래그
 
 uint8_t motor_speed = 0;
 
@@ -117,12 +116,12 @@ void task_lcd(void) {
  * - 장치: Buzzer (/dev/fpga_buzzer)
  * - 동작: ISR에서 set된 buzzer_flag 확인 후 50 ms 비프
  */
-void task_buzzer(void) {
-    if (buzzer_flag) {
-        buzzer_on();
-        buzzer_flag = 0;
-    }
-}
+// void task_buzzer(void) {
+//     if (buzzer_flag) {
+//         buzzer_on();
+//         buzzer_flag = 0;
+//     }
+// }
 
 /**
  * task_motor()
