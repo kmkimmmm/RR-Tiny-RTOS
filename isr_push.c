@@ -42,7 +42,7 @@ void* push_monitor(void* arg) {
             led_toggle();
             
             // LCD에 인터럽트 메시지 표시
-            lcd_write("INTERRUPT!");
+            lcd_write("INTERRUPT! Check LED, Motor and Buzzer");
             
             // 모터 즉시 정지
             motor_stop();
