@@ -3,8 +3,6 @@
 #include <unistd.h>
 #include <sys/timerfd.h>
 #include "rtos.h"
-#include "task.h"
-#include "device_io.h"  // push_read() 함수 사용을 위해 추가
 
 #define DEFAULT_CPU_QUANTA_MS 1000 // CPU 점유 시간의 default 값
 
