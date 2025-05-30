@@ -1,7 +1,6 @@
 // isr push
 
 #include <pthread.h>
-#include <poll.h>
 #include <unistd.h>
 #include "device_io.h"
 #include "rtos.h"
@@ -22,14 +21,11 @@ void led_toggle(void) {
 
 // Push Swtich를 모니터링하는 스레드 선언
 void* push_monitor(void* arg) {
-    struct pollfd pfd;
-    pfd.fd = fd_push;
-    pfd.events = POLLIN;
-    
     int previous_state = 0;  // 이전 버튼 상태 저장 (0: 안눌림, 1: 눌림)
 
     while (1) {
-        int ret = poll(&pfd, 1, 50); // 50ms 타임아웃으로 주기적 체크
+        // 50ms 주기적 체크 (기존 poll 타임아웃과 동일)
+        usleep(50000); // 50ms = 50,000 마이크로초
         
         // 현재 버튼 상태 읽기
         int current_state = push_read();
