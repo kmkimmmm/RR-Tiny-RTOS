@@ -16,9 +16,6 @@
 #define DOT_FRAMES 1
 #define DOT_ROWS   10
 
-
-extern volatile uint64_t ticks;    // 시스템 틱 (rtos_scheduler.c)
-
 uint8_t motor_speed = 0;
 
 /**
@@ -102,7 +99,7 @@ void task_dot(void) {
  * task_lcd()
  * - 주기: 1000 ms
  * - 장치: Text LCD (/dev/fpga_text_lcd)
- * - 동작: "Tick:<ticks>" 문자열 출력
+ * - 동작: "Motor_speed:<속도>" 문자열 출력
  */
 void task_lcd(void) {
     char buf[32];    

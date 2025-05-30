@@ -8,10 +8,9 @@
 #include <stdint.h>
 
 extern int fd_push; // device_io.c (재훈) 에서 정의한 push 관련 파일 디스크립터
-volatile int yield_flag = 0;  // 스케쥴러 선점 요청 플래그 (규민이에게 전달)
 
 static uint8_t led_state = 0; // LED 토글 상태를 관리하기 위한 변수
-static int interrupt_processing = 0; // 인터럽트 처리 중 플래그
+volatile int interrupt_processing = 0; // 인터럽트 처리 중 플래그
 
 // LED 상태를 반전시키는 함수
 void led_toggle(void) {
@@ -51,9 +50,6 @@ void* push_monitor(void* arg) {
             // 버저 켜기
             buzzer_on();
             printf("[ISR] Buzzer ON\n");
-            
-            // 스케줄러 선점 요청
-            yield_flag = 1;
             
             // 5초 후 버저 끄기
             usleep(5000000); // 5000ms (5초) 대기
