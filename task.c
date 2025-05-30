@@ -20,6 +20,7 @@
 extern volatile uint64_t ticks;    // 시스템 틱 (rtos_scheduler.c)
 extern volatile int buzzer_flag;   // ISR에서 설정되는 버저 플래그
 
+uint8_t motor_speed = 0;
 
 /**
  * task_led()
@@ -105,8 +106,8 @@ void task_dot(void) {
  * - 동작: "Tick:<ticks>" 문자열 출력
  */
 void task_lcd(void) {
-    char buf[32];
-    snprintf(buf, sizeof(buf), "Tick:%llu", ticks);
+    char buf[32];    
+    snprintf(buf, sizeof(buf), "Motor_speed:%u", motor_speed);
     lcd_write_fmt(buf);
 }
 
@@ -118,7 +119,7 @@ void task_lcd(void) {
  */
 void task_buzzer(void) {
     if (buzzer_flag) {
-        buzzer_on(50);
+        buzzer_on();
         buzzer_flag = 0;
     }
 }
@@ -131,16 +132,14 @@ void task_buzzer(void) {
  */
 void task_motor(void) {
     uint8_t v = dip_read();  // DIP 스위치 값 읽기
-    uint8_t motor_speed;
     
     // DIP 스위치 하위 2비트에 따라 모터 속도 결정
-    if ((v & 0x03) == 0) {
-        motor_speed = 30;  // 느린 속도 (30% PWM)
+    if (v == 0x00) {
+        motor_speed = 10;
     } else {
-        motor_speed = 80;  // 빠른 속도 (80% PWM)
+        motor_speed = 250;
     }
     
     motor_set_pwm(motor_speed);
-
     printf("Motor speed set to %d%% (DIP: 0x%02X)\n", motor_speed, v);
 }

@@ -22,7 +22,7 @@ void fnd_write(const char digits[4]);
 void dot_write(const uint8_t pattern[10]);
 void lcd_write(const char *str);
 void lcd_write_fmt(const char *fmt, ...);
-void buzzer_on(uint32_t duration_ms);
+void buzzer_on(void);
 void buzzer_off(void);
 int  push_read(void);
 uint8_t dip_read(void);
