@@ -9,14 +9,14 @@
 #include <stdarg.h>
 
 /* 전역 파일 디스크립터 - 각 장치 파일의 핸들을 저장 */
-int fd_led;    // LED 제어용
-int fd_fnd;    // 7-세그먼트 FND 제어용
-int fd_dot;    // 도트 매트릭스 제어용
-int fd_lcd;    // LCD 제어용
-int fd_buz;    // 버저 제어용
-int fd_push;   // 푸시 스위치 읽기용
-int fd_dip;    // DIP 스위치 읽기용
-int fd_motor;  // 모터 제어용
+int fd_led;   // LED 제어용
+int fd_fnd;   // 7-세그먼트 FND 제어용
+int fd_dot;   // 도트 매트릭스 제어용
+int fd_lcd;   // LCD 제어용
+int fd_buz;   // 버저 제어용
+int fd_push;  // 푸시 스위치 읽기용
+int fd_dip;   // DIP 스위치 읽기용
+int fd_motor; // 모터 제어용
 
 /**
  * 장치 파일을 열고 에러 체크하는 헬퍼 함수
@@ -89,7 +89,23 @@ void dot_write(const uint8_t pattern[10])
  */
 void lcd_write(const char *str)
 {
-    write(fd_lcd, str, strlen(str));
+    int str_size = strlen(str);
+    unsigned char string[32];
+
+    for (int i = 0; i < 32; ++i)
+        string[i] = ' ';
+
+    if (str_size > 16)
+    {
+        str_size = 16;
+    }
+
+    for (int i = 0; i < str_size; ++i)
+    {
+        string[i] = (unsigned char)str[i];
+    }
+
+    write(fd_lcd, string, 32);
 }
 
 /**
@@ -97,15 +113,15 @@ void lcd_write(const char *str)
  * fmt: 포맷 문자열mot
  * ...: 가변 인자
  */
-void lcd_write_fmt(const char *fmt, ...)
-{
-    char buf[64];
-    va_list ap;
-    va_start(ap, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, ap);
-    va_end(ap);
-    write(fd_lcd, buf, strlen(buf));
-}
+// void lcd_write_fmt(const char *fmt, ...)
+// {
+//     char buf[64];
+//     va_list ap;
+//     va_start(ap, fmt);
+//     vsnprintf(buf, sizeof(buf), fmt, ap);
+//     va_end(ap);
+//     write(fd_lcd, buf, strlen(buf));
+// }
 
 /**
  * 버저 켜기 함수
@@ -117,7 +133,6 @@ void buzzer_on(void)
     write(fd_buz, &data, 1);
 }
 
-
 /**
  * 버저 끄기 함수
  */
@@ -127,16 +142,26 @@ void buzzer_off(void)
     write(fd_buz, &data, 1);
 }
 
-
 /**
  * 푸시 스위치 상태 읽기 함수
  * return: 스위치 상태 (0: 안눌림, 1: 눌림)
  */
 int push_read(void)
 {
-    uint8_t v;
-    read(fd_push, &v, 1);
-    return v;
+    uint32_t buff_size;
+    uint8_t push_sw_buff[9] = {0};
+
+    buff_size = sizeof(push_sw_buff);
+
+    read(fd_push, &push_sw_buff, buff_size);
+
+    for (uint8_t i = 0; i < buff_size; ++i)
+    {
+        if (push_sw_buff[i] != 0)
+            return 1;
+    }
+
+    return 0;
 }
 
 /**
@@ -158,9 +183,9 @@ void motor_set_pwm(uint8_t duty)
 {
     uint8_t motor_state[3];
 
-    motor_state[0]=1;
-    motor_state[1]=1;
-    motor_state[2]=duty;
+    motor_state[0] = 1;
+    motor_state[1] = 1;
+    motor_state[2] = duty;
 
     write(fd_motor, motor_state, sizeof(motor_state));
 }
@@ -172,9 +197,9 @@ void motor_stop(void)
 {
     uint8_t motor_state[3];
 
-    motor_state[0]=0;
-    motor_state[1]=0;
-    motor_state[2]=0;
+    motor_state[0] = 0;
+    motor_state[1] = 0;
+    motor_state[2] = 0;
 
     write(fd_motor, motor_state, 3);
 }
